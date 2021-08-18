@@ -46,8 +46,10 @@ jobs:
           name: Build
           command: |
             echo $PWD
+            apk update && apk add bash
             ls -lrt
             echo "Build Job - Nothing to build - try steps"
+            chmod +x run_docker.sh
             ./run_docker.sh
 
   test:
