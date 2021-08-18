@@ -209,13 +209,13 @@ jobs:
 workflows:
   default:
     jobs:
-      - build-frontend
-      - test-frontend:
-          requires: [build-frontend]
-      - scan-frontend:
-          requires: [build-frontend]
+      - build
+      - test:
+          requires: [build]
+      - lint:
+          requires: [build]
       - deploy-infrastructure:
-          requires: [test-frontend, scan-frontend]
+          requires: [test, lint]
           filters:
             branches:
               only: [master-test]          
