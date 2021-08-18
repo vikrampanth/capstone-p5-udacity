@@ -6,13 +6,13 @@
 # Step 1:
 # Create dockerpath
 # dockerpath=<your docker ID/path>
-dockerpath="vikrampanth/mlapp"
+dockerpath="vikrampanth/htmlwebserver-image"
 
 # Step 2:  
 # Authenticate & tag
 echo "Docker ID and Image: $dockerpath"
 cat ~/environment/dockerdetail.txt | docker login --username vikrampanth --password-stdin
-docker tag mlappp4 $dockerpath
+docker tag udacity-captstone $dockerpath
 
 # Step 3:
 # Push image to a docker repository

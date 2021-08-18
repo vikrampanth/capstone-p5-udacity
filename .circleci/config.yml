@@ -28,14 +28,13 @@ commands:
             && pip3 install awscli
   
   destroy-environment:
-    description: Destroy back-end and front-end cloudformation stacks given a workflow ID
+    description: Destroy front-end cloudformation stacks with given a workflow ID
     steps:
       - run:
           name: Destroy frontend and backend environments
           when: on_fail
           command: |
             aws cloudformation delete-stack --stack-name frontend-${CIRCLE_WORKFLOW_ID}
-            aws cloudformation delete-stack --stack-name backend-${CIRCLE_WORKFLOW_ID}
 
   empty-s3:
     description: Empty s3 bucket
@@ -44,27 +43,7 @@ commands:
           name: Empty s3 bucket
           when: on_fail
           command: |
-            aws s3 rm --recursive s3://udapeople-${CIRCLE_WORKFLOW_ID}
-
-  revert-migrations:
-    description: Revert the last migration if successfully run in the current workflow.
-    steps:
-      - run:
-          name: Revert DB migrations
-          when: on_fail
-          command: |
-            export SUCCESS=$(curl -H "token: << pipeline.parameters.memstash-token >>" --request GET https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID} )
-            if(( $SUCCESS==1 )); 
-            then
-              echo "inside if"
-              cd ~/project
-              echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> "backend/.env"
-              echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> "backend/.env"
-              cd backend
-              npm install
-              npm run build
-              npm run migrations:revert > migration_revert.log
-            fi
+            aws s3 rm --recursive s3://capstone-${CIRCLE_WORKFLOW_ID}
 
 jobs:
   build-frontend:
@@ -75,35 +54,15 @@ jobs:
       - run:
           name: Build front-end
           command: |
-            echo "testin"
-
-  build-backend:
-    docker:
-      - image: circleci/node:13.8.0
-    steps:
-      - checkout
-      - restore_cache:
-          keys: [backend-build-9]
-      - run:
-          name: Back-end build
-          command: |
-            cd backend
+            cd frontend
             sudo npm install
-            sudo npm fund
-            sudo npm audit fix
             sudo npm run build
-      - save_cache:
-          paths: [backend/node_modules]
-          key: backend-build-9
 
   test-frontend:
     docker:
       - image: circleci/node:13.8.0
     steps:
       - checkout
-      - restore_cache:
-          keys: 
-            - "frontend-build-9"
       - run:
           name: "Test frontend"
           command: |
@@ -111,41 +70,14 @@ jobs:
             echo NODE_OPTIONS
             export NODE_OPTIONS="--max-old-space-size=4096"
             sudo npm test            
-                
-  test-backend:
-    docker:
-      - image: circleci/node
-    steps:
-      - checkout
-      - restore_cache:
-          keys: [backend-build-9]
-      - run:
-          name: "Test Backend"
-          command: |
-            cd backend
-            sudo npm test            
             
   scan-frontend:
     docker:
       - image: circleci/node
     steps:
       - checkout
-      - restore_cache:
-          keys: [frontend-build-9]
       - run:
           name: "Scan Frontend"
-          command: |
-            npm audit fix --audit-level=critical --force
-
-  scan-backend:
-    docker:
-      - image: circleci/node
-    steps:
-      - checkout
-      - restore_cache:
-          keys: [backend-build-9]
-      - run:
-          name: "Scan Backend"
           command: |
             npm audit fix --audit-level=critical --force
 
@@ -154,14 +86,6 @@ jobs:
       - image: sleavely/node-awscli
     steps:
       - checkout
-      - run:
-          name: Ensure back-end infrastructure exists
-          command: |
-            aws cloudformation deploy \
-              --template-file .circleci/files/backend.yml \
-              --tags project=CICD-Udacity-back-<< pipeline.parameters.run-id >> \
-              --stack-name backend-${CIRCLE_WORKFLOW_ID} \
-              --parameter-overrides ID=${CIRCLE_WORKFLOW_ID}
       - run:
           name: Ensure front-end infrastructure exist
           command: |
@@ -214,35 +138,6 @@ jobs:
       - aws-cli-setup-python
       - destroy-environment
 
-  run-migrations:
-    docker:
-      - image: circleci/node:13.8.0
-    steps:
-      - checkout
-      - aws-cli/setup
-      - run:
-          name: Run migrations
-          command: |
-            echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> "backend/.env"
-            echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> "backend/.env"
-            cd backend
-            cat .env
-            sudo npm install
-            sudo npm fund
-            sudo npm run build
-            sudo npm run migrations > migration_output.log
-            cat migration_output.log
-
-            migration_output=$(cat migration_output.log | grep -c "has been executed successfully")
-            echo ${migration_output}
-          # migration_output=$(grep -w "has been executed successfully" migration_output.txt)
-      - run:
-          name: Send migration results to memstash
-          command: |
-            curl -H "Content-Type: text/plain" -H "token: << pipeline.parameters.memstash-token >>" --request PUT --data "1" https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID}
-      - revert-migrations
-      - destroy-environment
-
   deploy-frontend:
     docker:
       - image: sleavely/node-awscli
@@ -253,58 +148,11 @@ jobs:
           command: |
             apt update
       - run:
-          name: Get backend url
-          command: |
-            BACKEND_IP=$(curl -H "token: << pipeline.parameters.memstash-token >>" --request GET https://api.memstash.io/values/ips)
-            export API_URL="http://${BACKEND_IP}:3030"
-            echo "${API_URL}"
-
-            echo ENVIRONMENT=production > "frontend/.env"
-            echo NODE_ENV=production >> "frontend/.env"
-            echo API_URL=$API_URL >> "frontend/.env"            
-      - run:
           name: Deploy frontend objects
           command: |
-            cd frontend
-            npm install webpack-dev-server -g
-            npm install
-            npm run build
             ls -la
-            aws s3 cp dist/ s3://udapeople-${CIRCLE_WORKFLOW_ID} --recursive
+            aws s3 cp ./index.html s3://udapeople-${CIRCLE_WORKFLOW_ID} 
            # can use sync . to upload all new files
-      - revert-migrations
-      - destroy-environment
-                    
-  deploy-backend:
-    docker:
-      - image: python:3.7-alpine3.11
-    steps:
-      - checkout
-      - attach_workspace:
-          at: ~/
-      - add_ssh_keys:
-          fingerprints:
-            - "8f:30:cf:c2:0d:5c:9d:a4:f7:70:7a:fa:dc:98:e6:cd"
-      - run:
-          name: Install dependencies and move file
-          command: |
-            apk add --update ansible
-            apk add --update tar gzip
-            apk add --update curl
-
-            echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> "backend/.env"
-            echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> "backend/.env"
-            cat backend/.env
-
-            cd /home
-            tar czf backend.tar.gz -P ~/project/backend
-      - run:
-          name: Deploy ansible backend
-          command: |
-            ansible-playbook .circleci/ansible/deploy-backend.yml -i .circleci/ansible/inventory.txt
-      - aws-cli-setup-python
-      - revert-migrations
-      - empty-s3
       - destroy-environment
 
   smoke-test:
@@ -319,19 +167,6 @@ jobs:
           command: |
             apk add --update curl
       - run:
-          name: Get backend url and do Backend smoke test.
-          command: |
-            BACKEND_IP=$(curl -H "token: << pipeline.parameters.memstash-token >>" --request GET https://api.memstash.io/values/ips)
-            echo "${BACKEND_IP}"
-            if curl -s http://${BACKEND_IP}:3030/api/status
-              then
-                echo "if"
-                return 0
-              else
-                echo "else"
-                return 0
-            fi
-      - run:
           name: Frontend smoke test.
           command: |
             URL="https://udapeople-${CIRCLE_WORKFLOW_ID}.s3-website-us-west-2.amazonaws.com"
@@ -344,21 +179,6 @@ jobs:
                 echo "else"
                 return 0
             fi            
-      - revert-migrations
-      - aws-cli-setup-python
-      - empty-s3
-      - destroy-environment
-
-  cloudfront-update:
-    docker:
-      - image: python:3.7-alpine3.11
-    steps:
-      - checkout
-      - run:
-          name: Install dependencies
-          command: |
-            apk add --update py3-pip && pip3 install --upgrade pip && pip3 install awscli
-            apk add --update curl
       - run:
           name: Get and store Last Pipeline ID
           command: |
@@ -371,15 +191,7 @@ jobs:
               curl -H "Content-Type: text/plain" -H "token: << pipeline.parameters.memstash-token >>" --request PUT --data ${OldWorkflowID} https://api.memstash.io/values/last_pipeline_${CIRCLE_WORKFLOW_ID}
             fi
             echo ${OldWorkflowID}
-      - run:
-          name: Update cloudfront distribution
-          command: |
-            aws cloudformation deploy \
-            --template-file .circleci/files/cloudfront.yml \
-            --stack-name cloudfront \
-            --parameter-overrides WorkflowID="${CIRCLE_WORKFLOW_ID}" \
-            --tags project=udapeople
-      - revert-migrations
+      - aws-cli-setup-python
       - empty-s3
       - destroy-environment
 
@@ -407,3 +219,20 @@ workflows:
   default:
     jobs:
       - build-frontend
+      - test-frontend:
+          requires: [build-frontend]
+      - scan-frontend:
+          requires: [build-frontend]
+      - deploy-infrastructure:
+          requires: [test-frontend, scan-frontend]
+          filters:
+            branches:
+              only: [master-test]          
+      - configure-infrastructure:
+          requires: [deploy-infrastructure]
+      - deploy-frontend:
+          requires: [configure-infrastructure]
+      - smoke-test:
+          requires: [deploy-frontend]
+      - cleanup:
+          requires: [smoke-test]

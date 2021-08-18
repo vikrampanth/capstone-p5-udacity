@@ -1,0 +1,90 @@
+Description: Vikram Panth/ Server setup
+
+Parameters:
+  EnvironmentName:
+    Description: An environment name that will be prefixed to resource name
+    Type: String
+
+Resources:
+
+  EKSSecGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: EKS Security Group with Inbound 80 & ssh & unrestricted Outbound
+      VpcId:
+        Fn::ImportValue:
+          !Sub "${EnvironmentName}-VPCID"
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: 8080
+        ToPort: 8080
+        CidrIp: 0.0.0.0/0
+      - IpProtocol: tcp
+        FromPort: 443
+        ToPort: 443
+        CidrIp: 0.0.0.0/0
+      - IpProtocol: tcp
+        FromPort: 10250
+        ToPort: 10250
+        CidrIp: 0.0.0.0/0
+      - IpProtocol: tcp
+        FromPort: 22
+        ToPort: 22
+        CidrIp: 0.0.0.0/0
+      SecurityGroupEgress:
+      - IpProtocol: -1
+        FromPort: -1
+        ToPort: -1
+        CidrIp: 0.0.0.0/0
+
+  EKSClusterFullAccessRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      Description: User Role for EKS
+      AssumeRolePolicyDocument:
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service:
+            - eks.amazonaws.com
+          Action:
+          - 'sts:AssumeRole'
+      ManagedPolicyArns: 
+      - arn:aws:iam::aws:policy/AmazonEKSClusterPolicy
+
+  EKSClusterCapstone:
+    Type: AWS::EKS::Cluster
+    Properties:
+      Name: !Sub "${EnvironmentName}-EKS"
+      Version: 1.20
+      RoleArn: !GetAtt EKSClusterFullAccessRole.Arn
+      #arn:aws:iam::877716312368:role/EKS-Capstone-project
+      ResourcesVpcConfig:
+        SecurityGroupIds:
+          - Ref: EKSSecGroup
+        SubnetIds:
+          - Fn::ImportValue: !Sub "${EnvironmentName}-PUB1-SN"
+          - Fn::ImportValue: !Sub "${EnvironmentName}-PUB2-SN"
+      Tags: 
+      - Key: name
+        Value: !Sub ${EnvironmentName}-EKS-Cluster
+
+Outputs: 
+
+  EKSSecGroup: 
+      Description: A reference to the EKS Security group
+      Value: !Ref EKSSecGroup
+      Export:
+        Name: !Sub ${EnvironmentName}-EKS-SG
+
+  EKSClusterFullAccessRole: 
+      Description: A value o EKS Role ARN
+      Value: !GetAtt EKSClusterFullAccessRole.Arn
+      Export:
+        Name: !Sub ${EnvironmentName}-EKS-ROLEARN
+
+  EKSClusterCapstone: 
+      Description: A reference to the EKS Cluster
+      Value: !Ref Ec2ServerAutoScalingGroup
+      Export:
+        Name: !Sub ${EnvironmentName}-EKS-CLUSTER
