@@ -70,7 +70,10 @@ jobs:
             apk update && apk add bash
             apk add --update curl
             chmod +x run_docker.sh
-            ./run_docker.sh
+            echo host.docker.internal
+            docker build -t vikrampanth/htmlwebserver-image .
+            docker run --network="host"-d -p 8080:80 vikrampanth/htmlwebserver-image
+            curl -v http://127.0.0.1:8080
             curl -v http://localhost:8080
             echo "test"
             
