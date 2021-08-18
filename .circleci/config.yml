@@ -71,7 +71,7 @@ jobs:
             apk add --update curl
             chmod +x run_docker.sh
             ./run_docker.sh
-            curl localhost:8080
+            curl -s http://localhost:8080
             
   lint:
     <<: *defaultpythonimage
@@ -84,7 +84,6 @@ jobs:
             apk add --update make
             make install
             make lint
-            sh 'tidy -q -e *.html'
 
   deploy-infrastructure:
     docker:
