@@ -43,7 +43,10 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker:
-          version: 19.03.13      
+          version: 20.10.2     
+      - run:
+          name: Install Docker client
+          command: apk add docker-cli
       - run:
           name: Build
           command: |
@@ -51,6 +54,7 @@ jobs:
             apk update && apk add bash
             ls -lrt
             echo "Build Job - Nothing to build - try steps"
+            docker image ls
             chmod +x run_docker.sh
             ./run_docker.sh
 
