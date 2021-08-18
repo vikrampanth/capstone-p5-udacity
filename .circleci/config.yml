@@ -55,24 +55,6 @@ jobs:
             chmod +x run_docker.sh
             ./run_docker.sh
 
-  test:
-    <<: *defaultpythonimage
-    steps:
-      - checkout
-      - setup_remote_docker:
-          version: 19.03.13      
-      - run:
-          name: Install Docker client
-          command: apk add docker-cli
-      - run:
-          name: "Test"
-          command: |
-            apk update && apk add bash
-            apk add --update curl
-            chmod +x run_docker.sh
-            ./run_docker.sh
-            curl -v http://127.0.0.1:80
-            
   lint:
     <<: *defaultpythonimage
     steps:
@@ -85,6 +67,22 @@ jobs:
             make install
             make lint
 
+  upload-image:
+    <<: *defaultpythonimage
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: 19.03.13      
+      - run:
+          name: Install Docker client
+          command: apk add docker-cli
+      - run:
+          name: "Upload to docker Hub"
+          command: |
+            apk update && apk add bash
+            chmod +x upload_docker.sh
+            ./upload_docker.sh
+            
   deploy-infrastructure:
     docker:
       - image: sleavely/node-awscli
@@ -222,12 +220,12 @@ workflows:
   default:
     jobs:
       - build
-      - test:
-          requires: [build]
       - lint:
           requires: [build]
+      - upload-image:
+          requires: [lint]
       - deploy-infrastructure:
-          requires: [test, lint]
+          requires: [upload-image]
           filters:
             branches:
               only: [master-test]          
