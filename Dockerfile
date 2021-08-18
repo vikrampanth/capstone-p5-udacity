@@ -1,4 +1,4 @@
-FROM nginx:alpine
+FROM nginx:latest
 
 ## Step 1:
 # Create a working directory
