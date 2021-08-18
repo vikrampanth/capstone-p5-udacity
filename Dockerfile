@@ -21,4 +21,4 @@ EXPOSE 80
 ## Step 5:
 # Run app.py at container launch
 #CMD ["python", "app.py"]
-
+#app.run(host='0.0.0.0'
