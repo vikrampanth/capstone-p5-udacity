@@ -49,8 +49,7 @@ jobs:
     <<: *defaultpythonimage
     steps:
       - checkout
-      - setup_remote_docker:
-          version: 19.03.13      
+      - docker-client    
       - run:
           name: Install Docker client
           command: apk add docker-cli
@@ -63,8 +62,7 @@ jobs:
             ./run_docker.sh
 
   test:
-    docker:
-      - image: circleci/node:13.8.0
+    <<: *defaultpythonimage
     steps:
       - checkout
       - docker-client
@@ -76,8 +74,7 @@ jobs:
             curl localhost:8080
             
   lint:
-    docker:
-      - image: circleci/node
+    <<: *defaultpythonimage
     steps:
       - checkout
       - run:
