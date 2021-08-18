@@ -68,11 +68,11 @@ jobs:
           name: "Test"
           command: |
             apk update && apk add bash
+            cat /etc/host
             apk add --update curl
             chmod +x run_docker.sh
             ./run_docker.sh
-            curl -v http://localhost:8080
-            echo "test"
+            curl -v http://$(boot2docker ip):8080
             
   lint:
     <<: *defaultpythonimage
