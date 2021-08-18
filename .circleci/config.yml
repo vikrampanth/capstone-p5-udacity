@@ -48,7 +48,6 @@ jobs:
             echo $PWD
             ls -lrt
             echo "Build Job - Nothing to build - try steps"
-            chmod +x run_docker.sh
             ./run_docker.sh
 
   test:
