@@ -183,7 +183,6 @@ jobs:
             fi
             echo ${OldWorkflowID}
       - aws-cli-setup-python
-      - empty-s3
       - destroy-environment
 
   cleanup:
