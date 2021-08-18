@@ -71,7 +71,7 @@ jobs:
             apk add --update curl
             chmod +x run_docker.sh
             ./run_docker.sh
-            echo "curl -s http://localhost:8080"
+            curl -v http://localhost:8080
             echo "test"
             
   lint:
