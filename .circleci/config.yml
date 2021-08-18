@@ -71,7 +71,8 @@ jobs:
             apk add --update curl
             chmod +x run_docker.sh
             ./run_docker.sh
-            curl -s http://localhost:8080
+            echo "curl -s http://localhost:8080"
+            echo "test"
             
   lint:
     <<: *defaultpythonimage
