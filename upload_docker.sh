@@ -11,7 +11,7 @@ dockerpath="vikrampanth/htmlwebserver-image"
 # Step 2:  
 # Authenticate & tag
 echo "Docker ID and Image: $dockerpath"
-cat ~/environment/dockerdetail.txt | docker login --username vikrampanth --password-stdin
+echo $DOCKER_HUB_PASSWORD | docker login --username vikrampanth --password-stdin
 docker tag udacity-captstone $dockerpath
 
 # Step 3:
