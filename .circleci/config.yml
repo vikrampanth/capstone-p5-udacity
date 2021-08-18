@@ -42,8 +42,6 @@ jobs:
     <<: *defaultpythonimage
     steps:
       - checkout
-      - setup_remote_docker:
-          version: 19.03.13      
       - run:
           name: Install Docker client
           command: apk add docker-cli
@@ -65,6 +63,7 @@ jobs:
       - run:
           name: "Test"
           command: |
+            apk update && apk add bash
             chmod +x run_docker.sh
             ./run_docker.sh
             curl localhost:8080
@@ -76,6 +75,7 @@ jobs:
       - run:
           name: "Linting"
           command: |
+            apk update && apk add bash
             make install
             make lint
             sh 'tidy -q -e *.html'
