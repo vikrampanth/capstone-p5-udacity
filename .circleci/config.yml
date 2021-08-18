@@ -68,6 +68,7 @@ jobs:
           name: "Test"
           command: |
             apk update && apk add bash
+            apk add --update curl
             chmod +x run_docker.sh
             ./run_docker.sh
             curl localhost:8080
@@ -79,7 +80,8 @@ jobs:
       - run:
           name: "Linting"
           command: |
-            apk update && apk add bash
+            apk update
+            apk add --update make
             make install
             make lint
             sh 'tidy -q -e *.html'
