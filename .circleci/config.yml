@@ -27,13 +27,6 @@ commands:
             && pip3 install --upgrade pip \
             && pip3 install awscli
 
-  docker-client:
-    description: Install Docker
-    steps:
-      - run:
-          name: Install Docker client
-          command: apk add docker-cli
-            
   destroy-environment:
     description: Destroy front-end cloudformation stacks with given a workflow ID
     steps:
@@ -49,7 +42,8 @@ jobs:
     <<: *defaultpythonimage
     steps:
       - checkout
-      - docker-client    
+      - setup_remote_docker:
+          version: 19.03.13      
       - run:
           name: Install Docker client
           command: apk add docker-cli
@@ -65,7 +59,9 @@ jobs:
     <<: *defaultpythonimage
     steps:
       - checkout
-      - docker-client
+      - run:
+          name: Install Docker client
+          command: apk add docker-cli
       - run:
           name: "Test"
           command: |
@@ -78,7 +74,7 @@ jobs:
     steps:
       - checkout
       - run:
-          name: "Audit & Linting"
+          name: "Linting"
           command: |
             make install
             make lint
