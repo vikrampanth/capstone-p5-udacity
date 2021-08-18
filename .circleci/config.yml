@@ -26,7 +26,14 @@ commands:
             apk add --no-cache python3 py3-pip \
             && pip3 install --upgrade pip \
             && pip3 install awscli
-  
+
+  docker-client:
+    description: Install Docker
+    steps:
+      - run:
+          name: Install Docker client
+          command: apk add docker-cli
+            
   destroy-environment:
     description: Destroy front-end cloudformation stacks with given a workflow ID
     steps:
@@ -60,6 +67,7 @@ jobs:
       - image: circleci/node:13.8.0
     steps:
       - checkout
+      - docker-client
       - run:
           name: "Test"
           command: |
@@ -75,6 +83,7 @@ jobs:
       - run:
           name: "Audit & Linting"
           command: |
+            make install
             make lint
             sh 'tidy -q -e *.html'
 
