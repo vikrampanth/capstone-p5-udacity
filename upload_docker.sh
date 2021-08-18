@@ -8,8 +8,6 @@
 # dockerpath=<your docker ID/path>
 dockerpath="vikrampanth/htmlwebserver-image"
 
-docker build -t $dockerpath -image .
-
 # Step 2:  
 # Authenticate & tag
 echo "Docker ID and Image: $dockerpath"

@@ -80,6 +80,11 @@ jobs:
           name: "Upload to docker Hub"
           command: |
             apk update && apk add bash
+            chmod +x build_docker.sh
+            ./build_docker.sh
+      - run:
+          name: "Upload to docker Hub"
+          command: |
             chmod +x upload_docker.sh
             ./upload_docker.sh
             
