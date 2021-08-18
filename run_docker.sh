@@ -12,4 +12,4 @@ docker image ls
 
 # Step 3: 
 # Run flask app
-docker run -d -p 8080:80 vikrampanth/htmlwebserver-image
+docker run -d -p 8080:80 vikrampanth/htmlwebserver-image --bind 0.0.0.0
