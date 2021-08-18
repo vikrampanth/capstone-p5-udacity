@@ -71,7 +71,7 @@ jobs:
             apk add --update curl
             chmod +x run_docker.sh
             ./run_docker.sh
-            curl -v http://$(boot2docker ip):8080
+            curl -v http://127.0.0.1:8080
             
   lint:
     <<: *defaultpythonimage
