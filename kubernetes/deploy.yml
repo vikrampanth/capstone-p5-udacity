@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: capstone-eks
+  labels:
+    app: capstone-eks
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: capstone-eks
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+        maxSurge: 25%
+        maxUnavailable: 25%      
+  template:
+    metadata:
+      labels:
+        app: capstone-eks
+    spec:
+      containers:
+      - name: capstone-eks
+        image: vikrampanth/htmlwebserver-image:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+          protocol: TCP

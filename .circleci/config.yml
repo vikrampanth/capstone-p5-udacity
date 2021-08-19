@@ -7,35 +7,6 @@ defaultpythonimage: &defaultpythonimage
 orbs:
   aws-cli: circleci/aws-cli@1.3.0
 
-parameters:
-  run-id:
-    type: string
-    default: "${CIRCLE_WORKFLOW_ID:0:7}"
-  memstash-token:
-    type: string
-    default: "c8c16243-3ac7-45ec-9a0a-5ca9ef15261a"
-
-commands:
-  aws-cli-setup-python:
-    description: Install AWS CLI
-    steps:
-      - run:
-          name: Install AWS command
-          when: on_fail
-          command: |
-            apk add --no-cache python3 py3-pip \
-            && pip3 install --upgrade pip \
-            && pip3 install awscli
-
-  destroy-environment:
-    description: Destroy front-end cloudformation stacks with given a workflow ID
-    steps:
-      - run:
-          name: Destroy frontend and backend environments
-          when: on_fail
-          command: |
-            aws cloudformation delete-stack --stack-name frontend-${CIRCLE_WORKFLOW_ID}
-
 jobs:
 
   build:
@@ -77,7 +48,7 @@ jobs:
           name: Install Docker client
           command: apk add docker-cli
       - run:
-          name: "Upload to docker Hub"
+          name: "Build Image"
           command: |
             apk update && apk add bash
             chmod +x build_docker.sh
@@ -87,65 +58,8 @@ jobs:
           command: |
             chmod +x upload_docker.sh
             ./upload_docker.sh
-            
-  deploy-infrastructure:
-    docker:
-      - image: sleavely/node-awscli
-    steps:
-      - checkout
-      - run:
-          name: Ensure front-end infrastructure exist
-          command: |
-            aws cloudformation deploy \
-              --template-file .circleci/files/frontend.yml \
-              --tags project=CICD-Udacity-<< pipeline.parameters.run-id >> \
-              --stack-name frontend-${CIRCLE_WORKFLOW_ID} \
-              --parameter-overrides ID=${CIRCLE_WORKFLOW_ID}
-      - run:
-          name: Add back-end ip to ansible inventory
-          command: |
-            aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' \
-              --filters "Name=tag:project,Values=CICD-Udacity-back-<< pipeline.parameters.run-id >>" --output text >> .circleci/ansible/inventory.txt
-            cat .circleci/ansible/inventory.txt
-      - run:
-          name: Add back-end ip to Memstash
-          command: |
-            mkdir /tmp/workspace
-            aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' \
-              --filters "Name=tag:project,Values=CICD-Udacity-back-<< pipeline.parameters.run-id >>" \
-              --output text > /tmp/workspace/ips.txt
-            EC2_IP=$(cat /tmp/workspace/ips.txt)
-            echo $EC2_IP
-            curl -H "Content-Type: text/plain" -H "token: << pipeline.parameters.memstash-token >>" \
-              --request PUT --data $EC2_IP https://api.memstash.io/values/ips
-      - persist_to_workspace:
-          root: ~/
-          paths:
-            - project/.circleci/ansible/inventory.txt
-      - destroy-environment
 
-  configure-infrastructure:
-    <<: *defaultpythonimage
-    steps:
-      - checkout
-      - add_ssh_keys:
-          fingerprints:
-            - "8f:30:cf:c2:0d:5c:9d:a4:f7:70:7a:fa:dc:98:e6:cd"
-      - attach_workspace:
-          at: ~/
-      - run:
-          name: Update dependencies
-          command: |
-            apk add --update ansible
-      - run:
-          name: Configure server
-          command: |
-            ansible-playbook .circleci/ansible/configure-server.yml \
-              -i .circleci/ansible/inventory.txt
-      - aws-cli-setup-python
-      - destroy-environment
-
-  deploy-frontend:
+  deploy:
     docker:
       - image: sleavely/node-awscli
     steps:
@@ -160,7 +74,6 @@ jobs:
             ls -la
             aws s3 cp ./index.html s3://udapeople-${CIRCLE_WORKFLOW_ID} 
            # can use sync . to upload all new files
-      - destroy-environment
 
   smoke-test:
     docker:
@@ -198,14 +111,17 @@ jobs:
               curl -H "Content-Type: text/plain" -H "token: << pipeline.parameters.memstash-token >>" --request PUT --data ${OldWorkflowID} https://api.memstash.io/values/last_pipeline_${CIRCLE_WORKFLOW_ID}
             fi
             echo ${OldWorkflowID}
-      - aws-cli-setup-python
-      - destroy-environment
 
   cleanup:
-    docker:
-      - image: amazon/aws-cli
+    <<: *defaultpythonimage
     steps:
       - checkout
+      - run:
+          name: Install AWS CLI
+          command: |
+            apk add --no-cache python3 py3-pip \
+            && pip3 install --upgrade pip \
+            && pip3 install awscli
       - run:
           name: Get old pipeline and Remove old stacks and files
           command: |
@@ -229,15 +145,11 @@ workflows:
           requires: [build]
       - upload-image:
           requires: [lint]
-      - deploy-infrastructure:
+      - deploy:
           requires: [upload-image]
           filters:
             branches:
               only: [master-test]          
-      - configure-infrastructure:
-          requires: [deploy-infrastructure]
-      - deploy-frontend:
-          requires: [configure-infrastructure]
       - smoke-test:
           requires: [deploy-frontend]
       - cleanup:

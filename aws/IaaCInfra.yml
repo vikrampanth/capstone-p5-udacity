@@ -40,12 +40,12 @@ Resources:
     Type: AWS::EC2::VPCGatewayAttachment
     Properties:
       InternetGatewayId: !Ref myIGW
-      VpcId: !Ref myVPC
+      VpcId: !Ref CapstoneVPC
 
   PublicSubnet1:
     Type: AWS::EC2::Subnet
     Properties:
-      VpcId: !Ref myVPC
+      VpcId: !Ref CapstoneVPC
       AvailabilityZone: !Select [ 0, !GetAZs '' ]
       CidrBlock: !Ref PublicSubnet1CIDR
       MapPublicIpOnLaunch: true
@@ -56,7 +56,7 @@ Resources:
   PublicSubnet2:
     Type: AWS::EC2::Subnet
     Properties:
-      VpcId: !Ref myVPC
+      VpcId: !Ref CapstoneVPC
       AvailabilityZone: !Select [ 1, !GetAZs '' ]
       CidrBlock: !Ref PublicSubnet2CIDR
       MapPublicIpOnLaunch: true
@@ -68,7 +68,7 @@ Resources:
   PublicRouteTable:
     Type: AWS::EC2::RouteTable
     Properties:
-      VpcId: !Ref myVPC
+      VpcId: !Ref CapstoneVPC
       Tags:
       - Key: name
         Value: !Sub $(EnvironmentName) Public Routes

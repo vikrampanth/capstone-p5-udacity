@@ -23,4 +23,4 @@ EXPOSE 80
 #CMD ["python", "app.py"]
 #app.run(host='0.0.0.0'
 #CMD ["flask", "run", "--host", "0.0.0.0"]
-CMD ["nginx", "--host", "0.0.0.0"]
+#CMD ["nginx", "--host", "0.0.0.0"]

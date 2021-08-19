@@ -1,0 +1,21 @@
+
+aws eks update-kubeconfig --region us-west-2 --name capstone-EKS
+
+kubectl config use-context arn:aws:eks:us-west-2:877716312368:cluster/capstone-EKS
+
+kubectl get svc
+
+aws iam get-role --role-name "AWSServiceRoleForElasticLoadBalancing" 
+|| aws iam create-service-linked-role --aws-service-name "elasticloadbalancing.amazonaws.com"
+
+
+kubectl apply -f kubernetes/deploy.yml
+kubectl apply -f kubernetes/service.yml
+kubectl get deployment capstone-eks -w
+kubectl get deployment capstone-eks
+kubectl get pods
+kubectl get services
+kubectl get nodes
+
+kubectl delete -f kubernetes/service.yml
+kubectl delete -f kubernetes/deploy.yml
