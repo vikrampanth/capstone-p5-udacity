@@ -72,7 +72,6 @@ jobs:
           name: Deploy frontend objects
           command: |
             ls -la
-            aws s3 cp ./index.html s3://udapeople-${CIRCLE_WORKFLOW_ID} 
            # can use sync . to upload all new files
 
   smoke-test:
@@ -99,18 +98,6 @@ jobs:
                 echo "else"
                 return 0
             fi            
-      - run:
-          name: Get and store Last Pipeline ID
-          command: |
-            export OldWorkflowID=$(aws cloudformation list-exports --query "Exports[?Name=='WorkflowID'].Value" --no-paginate --output text)
-            if [ -z "${OldWorkflowID}" ]
-            then
-              echo "No old implementation"
-            else
-              echo "else"
-              curl -H "Content-Type: text/plain" -H "token: << pipeline.parameters.memstash-token >>" --request PUT --data ${OldWorkflowID} https://api.memstash.io/values/last_pipeline_${CIRCLE_WORKFLOW_ID}
-            fi
-            echo ${OldWorkflowID}
 
   cleanup:
     <<: *defaultpythonimage
@@ -125,17 +112,13 @@ jobs:
       - run:
           name: Get old pipeline and Remove old stacks and files
           command: |
-            export OldWorkflowID=$(curl -H "token: << pipeline.parameters.memstash-token >>" --request GET https://api.memstash.io/values/last_pipeline_${CIRCLE_WORKFLOW_ID} )
-            echo ${OldWorkflowID}
+            echo "test"
             if [ -z "${OldWorkflowID}" ]
               then
                 echo "No old Id and empty"
               else
-                aws s3 rm --recursive s3://udapeople-${OldWorkflowID}
                 aws cloudformation delete-stack --stack-name frontend-${OldWorkflowID}
-                aws cloudformation delete-stack --stack-name backend-${OldWorkflowID}
             fi
-#           aws s3 rb s3://udapeople-vp-${OldWorkflowID} --force
 
 workflows:
   default:

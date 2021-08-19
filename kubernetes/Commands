@@ -13,9 +13,9 @@ kubectl apply -f kubernetes/deploy.yml
 kubectl apply -f kubernetes/service.yml
 kubectl get deployment capstone-eks -w
 kubectl get deployment capstone-eks
+kubectl get nodes
 kubectl get pods
 kubectl get services
-kubectl get nodes
 
 kubectl delete -f kubernetes/service.yml
 kubectl delete -f kubernetes/deploy.yml

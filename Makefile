@@ -1,17 +1,19 @@
 ## The Makefile includes instructions on environment setup and lint tests
 
-kube-setup:
+kube:
 	curl -LO https://storage.googleapis.com/kubernetes-release/release/`curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt`/bin/linux/amd64/kubectl
 	sudo install kubectl /usr/local/bin/kubectl
 	sudo service docker start
 	git clone https://github.com/vikrampanth/kubernetes_test_dev.git
-	cd kubernetes_test_dev
-	chmod +x resize.sh
-	./resize.sh
-	cd ..
+	cd kubernetes_test_dev && chmod +x resize.sh && ./resize.sh && cd ..
 	curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
 	sudo install minikube-linux-amd64 /usr/local/bin/minikube
 	minikube start
+
+docker-build-kube-run:
+	chmod +x run_docker.sh && ./run_docker.sh
+	chmod +x upload_docker.sh && ./upload_docker.sh
+	chmod +x run_kubernetes.sh && ./run_kubernetes.sh
 
 setup:
 	# Create python virtualenv & source it

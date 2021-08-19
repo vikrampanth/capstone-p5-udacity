@@ -11,5 +11,5 @@ docker build -t vikrampanth/htmlwebserver-image .
 docker image ls
 
 # Step 3: 
-# Run flask app
-docker run -d -p 80:80 vikrampanth/htmlwebserver-image --bind 0.0.0.0
+# Run app, but commented as Kube will be used to start the app
+docker run -d -p 8080:80 vikrampanth/htmlwebserver-image
