@@ -16,12 +16,15 @@ jobs:
       - setup_remote_docker:
           version: 19.03.13      
       - run:
+          name: Install dependencies
+          command: |
+            apk update && apk add bash
+      - run:
           name: Install Docker client
           command: apk add docker-cli
       - run:
           name: Build Docker Image
           command: |
-            apk update && apk add bash
             chmod +x run_docker.sh
             ./run_docker.sh
 
@@ -30,10 +33,13 @@ jobs:
     steps:
       - checkout
       - run:
-          name: "Linting"
+          name: Install dependencies
           command: |
             apk update
             apk add --update make
+      - run:
+          name: "Linting"
+          command: |
             make hadolint-install
             make lint
 
@@ -44,12 +50,15 @@ jobs:
       - setup_remote_docker:
           version: 19.03.13      
       - run:
+          name: Install dependencies
+          command: |
+            apk update && apk add bash
+      - run:
           name: Install Docker client
           command: apk add docker-cli
       - run:
           name: Build Docker Image
           command: |
-            apk update && apk add bash
             chmod +x build_docker.sh
             ./build_docker.sh
       - run:
@@ -59,35 +68,31 @@ jobs:
             ./upload_docker.sh
 
   deploy:
-    docker:
-      - image: sleavely/node-awscli
+    <<: *defaultpythonimage
     steps:
       - checkout
       - run:
           name: Install dependencies
           command: |
-            apt update
+            apk update && apk add bash
       - run:
           name: Deploy frontend objects
           command: |
             ls -la
-           # can use sync . to upload all new files
+            
 
   smoke-test:
-    docker:
-      - image: python:3.7-alpine3.11
+    <<: *defaultpythonimage
     steps:
       - checkout
-      - attach_workspace:
-          at: ~/      
       - run:
           name: Install dependencies
           command: |
             apk add --update curl
       - run:
-          name: Frontend smoke test.
+          name: Frontend smoke test
           command: |
-            URL="https://udapeople-${CIRCLE_WORKFLOW_ID}.s3-website-us-west-2.amazonaws.com"
+            URL="https://www.google.com"
             echo $URL          
             if curl -s ${URL} | grep "Welcome"
               then
@@ -103,21 +108,9 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Install AWS CLI
+          name: Perform Cleanup
           command: |
-            apk add --no-cache python3 py3-pip \
-            && pip3 install --upgrade pip \
-            && pip3 install awscli
-      - run:
-          name: Get old pipeline and Remove old stacks and files
-          command: |
-            echo "test"
-            if [ -z "${OldWorkflowID}" ]
-              then
-                echo "No old Id and empty"
-              else
-                aws cloudformation delete-stack --stack-name frontend-${OldWorkflowID}
-            fi
+            docker system prune
 
 workflows:
   default:
@@ -131,7 +124,7 @@ workflows:
           requires: [upload-image]
           filters:
             branches:
-              only: [master-test]          
+              only: [master]          
       - smoke-test:
           requires: [deploy]
       - cleanup:
