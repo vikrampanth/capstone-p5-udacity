@@ -9,7 +9,7 @@
 4. AWS EKS 
 5. Blue/Green deployment
 
-# Run the App Locally :
+## Run the App Locally :
 
 ### Setup the Environment -
 - make kube-setup

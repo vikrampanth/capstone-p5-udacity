@@ -19,10 +19,9 @@ jobs:
           name: Install Docker client
           command: apk add docker-cli
       - run:
-          name: Build
+          name: Build Docker Image
           command: |
             apk update && apk add bash
-            echo "Build Docker Image"
             chmod +x run_docker.sh
             ./run_docker.sh
 
@@ -35,7 +34,7 @@ jobs:
           command: |
             apk update
             apk add --update make
-            make install
+            make hadolint-install
             make lint
 
   upload-image:
@@ -48,13 +47,13 @@ jobs:
           name: Install Docker client
           command: apk add docker-cli
       - run:
-          name: "Build Image"
+          name: Build Docker Image
           command: |
             apk update && apk add bash
             chmod +x build_docker.sh
             ./build_docker.sh
       - run:
-          name: "Upload to docker Hub"
+          name: Upload to docker Hub
           command: |
             chmod +x upload_docker.sh
             ./upload_docker.sh
