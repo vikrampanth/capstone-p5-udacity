@@ -2,7 +2,7 @@
 
 [![CircleCI](https://circleci.com/gh/vikrampanth/capstone-p5-udacity/tree/main.svg?style=svg)](https://circleci.com/gh/vikrampanth/capstone-p5-udacity/tree/main)
 
-###Scope the Project - 
+### Scope the Project - 
 1. Frontend Pipeline only
 2. Docker Nginx for Static content - Index.html file
 3. Circle CI with github
@@ -11,18 +11,17 @@
 
 # Run the App Locally :
 
-###Setup the Environment -
-- make kube
-- make install
+### Setup the Environment -
+- make kube-setup
+- make hadolint-install
 
-###Running Locally 
+### Running Locally 
 - Run in Docker: ./run_docker.sh
 - Run in Kubernetes: ./run_kubernetes.sh
+- Single step Kube run: make docker-kube-run
 
-###Kubernetes
-    Setup and Configure Docker locally
-    Setup and Configure Kubernetes locally
-    Run via kubectl
+### Kubernetes
+- Run via kubectl command
 
 
 

@@ -1,6 +1,6 @@
 ## The Makefile includes instructions on environment setup and lint tests
 
-kube:
+kube-setup:
 	curl -LO https://storage.googleapis.com/kubernetes-release/release/`curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt`/bin/linux/amd64/kubectl
 	sudo install kubectl /usr/local/bin/kubectl
 	sudo service docker start
@@ -11,7 +11,8 @@ kube:
 	minikube start
 
 docker-kube-run:
-	chmod +x run_docker.sh && ./run_docker.sh
+	docker build -t vikrampanth/htmlwebserver-image .
+	docker image ls
 	chmod +x upload_docker.sh && ./upload_docker.sh
 	chmod +x run_kubernetes.sh && ./run_kubernetes.sh
 
@@ -19,21 +20,14 @@ setup:
 	# Create python virtualenv & source it
 	source ~/.devops/bin/activate
 
-install:
+hadolint-install:
 	# This should be run from inside a virtualenv
 	wget -O ./hadolint https://github.com/hadolint/hadolint/releases/download/v1.16.3/hadolint-Linux-x86_64 &&\
 		chmod +x ./hadolint
-
-test:
-	# Additional, optional, tests could go here
-	# python -m pytest tests/*.py
-	# python -m pytest --nbval notebook.ipynb
 
 lint:
 	# See local hadolint install instructions:   https://github.com/hadolint/hadolint
 	# This is linter for Dockerfiles
 	./hadolint Dockerfile
-	# This is a linter for Python source code linter: https://www.pylint.org/
-	# This should be run from inside a virtualenv
 
-all: install lint test
+all: hadolint-install lint
