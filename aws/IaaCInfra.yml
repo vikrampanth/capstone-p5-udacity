@@ -26,20 +26,20 @@ Resources:
       CidrBlock: !Ref VpcCIDR
       EnableDnsHostnames: true
       Tags:
-      - Key: name 
+      - Key: Name 
         Value: !Ref EnvironmentName
 
-  myIGW:
+  CapstoneIGW:
     Type: AWS::EC2::InternetGateway
     Properties:
       Tags:
-      - Key: name
+      - Key: Name
         Value: !Ref EnvironmentName
 
   VPCnIGWAttachment:
     Type: AWS::EC2::VPCGatewayAttachment
     Properties:
-      InternetGatewayId: !Ref myIGW
+      InternetGatewayId: !Ref CapstoneIGW
       VpcId: !Ref CapstoneVPC
 
   PublicSubnet1:
@@ -50,7 +50,7 @@ Resources:
       CidrBlock: !Ref PublicSubnet1CIDR
       MapPublicIpOnLaunch: true
       Tags:
-      - Key: name
+      - Key: Name
         Value: !Sub $(EnvironmentName) Public Subnet AZ1
 
   PublicSubnet2:
@@ -61,7 +61,7 @@ Resources:
       CidrBlock: !Ref PublicSubnet2CIDR
       MapPublicIpOnLaunch: true
       Tags:
-      - Key: name
+      - Key: Name
         Value: !Sub $(EnvironmentName) Public Subnet AZ2
 
 # After you create a route table, you can add routes and associate the table with a subnet
@@ -70,7 +70,7 @@ Resources:
     Properties:
       VpcId: !Ref CapstoneVPC
       Tags:
-      - Key: name
+      - Key: Name
         Value: !Sub $(EnvironmentName) Public Routes
 
 # Specifies a route in a route table within a VPC, which is added to an Internet gateway
@@ -80,7 +80,7 @@ Resources:
     Properties:
       RouteTableId: !Ref PublicRouteTable
       DestinationCidrBlock: 0.0.0.0/0
-      GatewayId: !Ref myIGW
+      GatewayId: !Ref CapstoneIGW
 
 # Association causes traffic originating from the subnet to be routed according to the routes in the route table
   PublicSubnet1RouteTableAssociation:

@@ -12,6 +12,7 @@ dockerpath="vikrampanth/htmlwebserver-image"
 kubectl run uda-captstone --image=$dockerpath --port=80 --labels app=uda-captstone
 #kubectl create deployment my-mlapp --image=$dockerpath --port=80 --labels app=my-mlapp
 #kubectl create deployment my-mlapp --image=vikrampanth/mlapp --port=80 --labels app=my-mlapp
+sleep 60
 
 # Step 3:
 # List kubernetes pods

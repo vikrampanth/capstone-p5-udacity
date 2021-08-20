@@ -10,7 +10,7 @@ kube:
 	sudo install minikube-linux-amd64 /usr/local/bin/minikube
 	minikube start
 
-docker-build-kube-run:
+docker-kube-run:
 	chmod +x run_docker.sh && ./run_docker.sh
 	chmod +x upload_docker.sh && ./upload_docker.sh
 	chmod +x run_kubernetes.sh && ./run_kubernetes.sh
