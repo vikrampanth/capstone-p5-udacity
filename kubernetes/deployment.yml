@@ -22,7 +22,7 @@ spec:
     spec:
       containers:
       - name: capstone-eks
-        image: vikrampanth/htmlwebserver-image:latest
+        image: vikrampanth/capstone-image
         imagePullPolicy: Always
         ports:
         - containerPort: 80

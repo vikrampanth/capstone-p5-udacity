@@ -40,7 +40,7 @@ Resources:
   EKSClusterFullAccessRole:
     Type: 'AWS::IAM::Role'
     Properties:
-      Description: User Role for EKS
+      Description: User Role for EKS Capstone
       AssumeRolePolicyDocument:
         Statement:
         - Effect: Allow

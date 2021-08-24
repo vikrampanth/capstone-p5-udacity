@@ -15,13 +15,13 @@ aws iam get-role --role-name "AWSServiceRoleForElasticLoadBalancing"
 
 kubectl apply -f kubernetes/deployment.yml
 kubectl apply -f kubernetes/service.yml
-kubectl get deployment uda-captstone -w
-kubectl get deployment uda-captstone
+kubectl get deployment
+kubectl get deployment capstone-eks -w
 kubectl get nodes
 kubectl get pods
 kubectl get pod -o wide
 kubectl get services
-kubectl get service/vikrampanth/htmlwebserver-image
+kubectl get service/vikrampanth/capstone-image
 
 kubectl delete -f kubernetes/service.yml
-kubectl delete -f kubernetes/deploy.yml
+kubectl delete -f kubernetes/deployment.yml
