@@ -12,6 +12,7 @@ kubectl get svc
 aws iam get-role --role-name "AWSServiceRoleForElasticLoadBalancing" 
 || aws iam create-service-linked-role --aws-service-name "elasticloadbalancing.amazonaws.com"
 
+kubectl apply -f kubernetes/aws-auth.yml
 
 kubectl apply -f kubernetes/deployment.yml
 kubectl apply -f kubernetes/service.yml

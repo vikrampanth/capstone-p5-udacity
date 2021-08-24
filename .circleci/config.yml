@@ -96,12 +96,16 @@ jobs:
           command: |
             aws eks --region us-west-2 update-kubeconfig --name Capstone-EKS
             kubectl config use-context arn:aws:eks:us-west-2:877716312368:cluster/Capstone-EKS
+            kubectl apply -f kubernetes/aws-auth.yml
             kubectl apply -f kubernetes/deployment.yml
             kubectl apply -f kubernetes/service.yml
             kubectl get nodes
             kubectl get deployment
             kubectl get pod -o wide
-            kubectl get service/capstone-image
+            kubectl describe deployment
+            kubectl describe pods
+            kubectl describe service
+            kubectl get service/capstone-eks
 
   rolling-update:
     <<: *defaultpythonimage

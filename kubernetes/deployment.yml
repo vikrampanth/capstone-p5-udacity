@@ -6,7 +6,7 @@ metadata:
     app: capstone-eks
   namespace: default
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       app: capstone-eks

@@ -6,7 +6,6 @@ metadata:
 data:
   mapRoles: |
     - rolearn: arn:aws:iam::877716312368:role/Capstone-EKS-Server-EKSClusterFullAccessRole-RX47RKMRVFJO
-      username: system:node:{{EC2PrivateDNSName}}
+      username: eksAccessrole
       groups:
-        - system:bootstrappers
-        - system:nodes     
+        - system:masters        
