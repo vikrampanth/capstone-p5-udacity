@@ -16,6 +16,11 @@ docker-kube-run:
 	chmod +x upload_docker.sh && ./upload_docker.sh
 	chmod +x run_kubernetes.sh && ./run_kubernetes.sh
 
+resize:
+	df -f
+	chmod +x resize.sh && ./resize.sh
+	df -f
+
 venv-setup:
 	# Create python virtualenv & source it
 	source ~/.devops/bin/activate

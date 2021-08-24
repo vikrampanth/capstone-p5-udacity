@@ -5,7 +5,7 @@
 # Step 1:
 # This is your Docker ID/path
 # dockerpath=<>
-dockerpath="vikrampanth/htmlwebserver-image"
+dockerpath="capstone-image"
 
 # Step 2
 # Run the Docker Hub container with kubernetes

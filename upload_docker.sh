@@ -6,7 +6,7 @@
 # Step 1:
 # Create dockerpath
 # dockerpath=<your docker ID/path>
-dockerpath="vikrampanth/htmlwebserver-image"
+dockerpath="capstone-image"
 
 # Step 2:  
 # Authenticate & tag

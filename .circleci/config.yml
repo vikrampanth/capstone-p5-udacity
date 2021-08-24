@@ -5,6 +5,8 @@ defaultpythonimage: &defaultpythonimage
     - image: python:3.7-alpine3.11
 
 orbs:
+  aws-eks: circleci/aws-eks@1.1.0
+  kubernetes: circleci/kubernetes@0.12.0
   aws-cli: circleci/aws-cli@1.3.0
 
 jobs:
@@ -76,10 +78,26 @@ jobs:
           command: |
             apk update && apk add bash
       - run:
-          name: Deploy frontend objects
+          name: Deploy Container to EKS
           command: |
-            ls -la
-            
+            aws eks --region us-west-2 update-kubeconfig --name Capstone-EKS
+            kubectl config use-context arn:aws:eks:us-west-2:877716312368:cluster/Capstone-EKS
+            kubectl apply -f kubernetes/deployment.yml
+            kubectl apply -f kubernetes/service.yml
+            kubectl get nodes
+            kubectl get deployment
+            kubectl get pod -o wide
+            kubectl get service/capstone-image
+
+  rolling-update:
+    <<: *defaultpythonimage
+    steps:
+      - checkout
+      - run:
+          name: Rolling update
+          command: |
+            kubectl set image capstone-image capstone-image=capstone-image:latest
+					  kubectl rollout status deployment capstone-image
 
   smoke-test:
     <<: *defaultpythonimage

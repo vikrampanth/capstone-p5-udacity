@@ -7,6 +7,6 @@ spec:
     app: capstone-eks
   type: LoadBalancer
   ports:
-    - port: 80
+    - port: 8080
       targetPort: 80
       protocol: TCP
