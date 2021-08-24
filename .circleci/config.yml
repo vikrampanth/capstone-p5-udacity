@@ -97,7 +97,7 @@ jobs:
           name: Rolling update
           command: |
             kubectl set image capstone-image capstone-image=capstone-image:latest
-					  kubectl rollout status deployment capstone-image
+            kubectl rollout status deployment capstone-image
 
   smoke-test:
     <<: *defaultpythonimage
