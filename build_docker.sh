@@ -4,7 +4,7 @@
 
 # Step 1:
 # Build image and add a descriptive tag
-docker build -t vikrampanth/htmlwebserver-image .
+docker build -t capstone-image .
 
 # Step 2: 
 # List docker images
