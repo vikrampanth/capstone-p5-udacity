@@ -15,12 +15,12 @@ jobs:
     <<: *defaultpythonimage
     steps:
       - checkout
-      - setup_remote_docker:
-          version: 19.03.13      
       - run:
           name: Install dependencies
           command: |
             apk update && apk add bash
+      - setup_remote_docker:
+          version: 19.03.13      
       - run:
           name: Install Docker client
           command: apk add docker-cli
@@ -49,12 +49,12 @@ jobs:
     <<: *defaultpythonimage
     steps:
       - checkout
-      - setup_remote_docker:
-          version: 19.03.13      
       - run:
           name: Install dependencies
           command: |
             apk update && apk add bash
+      - setup_remote_docker:
+          version: 19.03.13      
       - run:
           name: Install Docker client
           command: apk add docker-cli
@@ -73,6 +73,8 @@ jobs:
     <<: *defaultpythonimage
     steps:
       - checkout
+      - aws-cli/setup
+      - kubernetes/install
       - run:
           name: Install dependencies
           command: |
@@ -93,6 +95,8 @@ jobs:
     <<: *defaultpythonimage
     steps:
       - checkout
+      - aws-cli/setup
+      - kubernetes/install
       - run:
           name: Rolling update
           command: |
@@ -103,6 +107,8 @@ jobs:
     <<: *defaultpythonimage
     steps:
       - checkout
+      - aws-cli/setup
+      - kubernetes/install
       - run:
           name: Install dependencies
           command: |
@@ -125,6 +131,11 @@ jobs:
     <<: *defaultpythonimage
     steps:
       - checkout
+      - setup_remote_docker:
+          version: 19.03.13      
+      - run:
+          name: Install Docker client
+          command: apk add docker-cli
       - run:
           name: Perform Cleanup
           command: |
