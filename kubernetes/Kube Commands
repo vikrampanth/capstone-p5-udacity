@@ -1,8 +1,12 @@
 
 aws eks update-kubeconfig --region us-west-2 --name Capstone-EKS
 
-kubectl config use-context arn:aws:eks:us-west-2:877716312368:cluster/Capstone-EKS
+aws eks update-kubeconfig --region us-west-2 --name Capstone-EKS --role-arn arn:aws:iam::877716312368:role/Capstone-EKS-Server-EKSClusterFullAccessRole-RX47RKMRVFJO
 
+kubectl config view --minify
+
+kubectl config use-context arn:aws:eks:us-west-2:877716312368:cluster/Capstone-EKS
+                           
 kubectl get svc
 
 aws iam get-role --role-name "AWSServiceRoleForElasticLoadBalancing" 
