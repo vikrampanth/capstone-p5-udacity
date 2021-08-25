@@ -57,9 +57,31 @@ jobs:
             ./run_docker.sh
       - run:
           name: Upload to docker Hub
-          command: |
+            command: |
             chmod +x upload_docker.sh
             ./upload_docker.sh
+
+  create-kubernetes-cluster:
+    docker:
+      - image: alpine/k8s:1.15.12
+    working_directory: /tmp/workspace
+    steps:
+      - checkout
+      - run:
+          name: Store old cluster name
+          command: |
+            echo $(aws eks list-clusters --query 'clusters[0]') > cluster.txt
+            cat cluster.txt
+      - run:
+          name: create kubernetes cluster
+          command: |
+            eksctl create cluster --name="capstone-${CIRCLE_WORKFLOW_ID:0:7}" \
+            --nodes-min=1 --nodes-max=2 \
+            --node-type=t2.micro
+      - persist_to_workspace:
+          root: /tmp/workspace
+          paths:
+            - cluster.txt
 
   deploy:
     <<: *defaultpythonimage
@@ -75,7 +97,7 @@ jobs:
       - run:
           name: Deploy Container to EKS
           command: |
-            aws eks --region us-west-2 update-kubeconfig --name Capstone-VP
+            aws eks --region us-west-2 update-kubeconfig --name "capstone-${CIRCLE_WORKFLOW_ID:0:7}"
             kubectl config use-context arn:aws:eks:us-west-2:877716312368:cluster/Capstone-VP
             kubectl apply -f kubernetes/aws-auth-cm.yaml
             kubectl apply -f kubernetes/deployment.yml
@@ -119,23 +141,17 @@ jobs:
             fi         
 
   cleanup:
-    <<: *defaultpythonimage
+    docker:
+      - image: alpine/k8s:1.15.12
     steps:
-      - checkout
+      - attach_workspace:
+          at: /tmp/workspace
       - run:
-          name: Install dependencies
+          name: delete old clusters
           command: |
-            apk update && apk add bash
-            apk add --update curl
-      - setup_remote_docker:
-          version: 19.03.13      
-      - run:
-          name: Install Docker client
-          command: apk add docker-cli
-      - run:
-          name: Perform Cleanup
-          command: |
-            echo "Require for deletion of old stack in case of Blue Green deployment only"
+            aws eks update-kubeconfig --name "capstone-${CIRCLE_WORKFLOW_ID:0:7}"
+            cluster_name=$(tr -d '\n' < cluster.txt)
+            eksctl delete cluster --name=$cluster_name
 
 workflows:
   default:
@@ -143,11 +159,13 @@ workflows:
       - lint
       - build-upload-image:
           requires: [lint]
-      - deploy:
+      - create-kubernetes-cluster:
           requires: [build-upload-image]
           filters:
             branches:
               only: [main]          
+      - deploy:
+          requires: [create-kubernetes-cluster]
       - smoke-test:
           requires: [deploy]
       - cleanup:
