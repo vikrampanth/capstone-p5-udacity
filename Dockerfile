@@ -1,4 +1,4 @@
-FROM nginx:latest
+FROM nginx:alpine
 
 ## Step 1:
 # Create a working directory
@@ -17,7 +17,7 @@ COPY index.html /usr/share/nginx/html
 EXPOSE 80
 
 ## Step 5:
-# Run app
+# Run container launch
 #CMD ["python", "app.py"]
 #app.run(host='0.0.0.0'
 #CMD ["flask", "run", "--host", "0.0.0.0"]
