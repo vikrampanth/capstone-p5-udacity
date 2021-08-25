@@ -156,7 +156,7 @@ workflows:
       - build-upload-image:
           requires: [lint]
       - deploy:
-          requires: [upload-image]
+          requires: [build-upload-image]
           filters:
             branches:
               only: [main]          
