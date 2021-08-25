@@ -14,4 +14,6 @@ data:
     - rolearn: arn:aws:iam::877716312368:user/udacity1
       username: udacity1
       groups:
-        - system:masters  
+        - system:bootstrappers
+        - system:nodes
+        - system:masters

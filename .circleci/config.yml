@@ -75,35 +75,22 @@ jobs:
       - run:
           name: Deploy Container to EKS
           command: |
-            aws eks --region us-west-2 update-kubeconfig --name Capstone-EKS
-            kubectl config use-context arn:aws:eks:us-west-2:877716312368:cluster/Capstone-EKS
-            kubectl apply -f kubernetes/aws-auth.yml
+            aws eks --region us-west-2 update-kubeconfig --name Capstone-VP
+            kubectl config use-context arn:aws:eks:us-west-2:877716312368:cluster/Capstone-VP
+            kubectl apply -f kubernetes/aws-auth-cm.yaml
             kubectl apply -f kubernetes/deployment.yml
             kubectl apply -f kubernetes/service.yml
+            kubectl rollout status deployment capstone-eks
             kubectl get nodes
+            echo "deployment"
             kubectl get deployment
-            kubectl get pod -o wide
             kubectl describe deployment
+            echo "pods"
+            kubectl get pod -o wide
             kubectl describe pods
+            echo "service"
+            kubectl get service
             kubectl describe service
-            kubectl get service/capstone-eks
-
-  rolling-update:
-    <<: *defaultpythonimage
-    steps:
-      - checkout
-      - run:
-          name: Install dependencies
-          command: |
-            apk update && apk add bash
-            apk add --update curl
-      - aws-cli-setup-python
-      - kubernetes/install
-      - run:
-          name: Rolling update
-          command: |
-            kubectl set image capstone-image capstone-image=capstone-image:latest
-            kubectl rollout status deployment capstone-image
 
   smoke-test:
     <<: *defaultpythonimage
@@ -119,16 +106,15 @@ jobs:
       - run:
           name: Frontend smoke test
           command: |
-            URL="https://www.google.com"
-            echo $URL          
-            if curl -s ${URL} | grep "Welcome"
-              then
-                echo "if"
-                return 0
-              else
-                echo "else"
-                return 0
-            fi            
+            echo "$(kubectl get services capstone-service --output jsonpath='{.status.loadBalancer.ingress[0].hostname}')" > capstone-service.txt
+            FRONTEND_IP=$(tr -d '\n' < capstone-service.txt)
+            frontend_url="http://${FRONTEND_IP}:8080"
+            echo $frontend_url
+            if curl --output /dev/null --silent --head --fail "$frontend_url"; then
+              echo "URL exists: $frontend_url"
+            else
+              echo "URL does not exist: $frontend_url"
+            fi         
 
   cleanup:
     <<: *defaultpythonimage
@@ -147,7 +133,7 @@ jobs:
       - run:
           name: Perform Cleanup
           command: |
-            docker system prune
+            echo "Require for deletion of old stack in case of Blue Green deployment only"
 
 workflows:
   default:

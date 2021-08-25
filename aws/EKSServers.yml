@@ -53,6 +53,7 @@ Resources:
       ManagedPolicyArns: 
       - arn:aws:iam::aws:policy/AmazonEKSClusterPolicy
       - arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy
+      - arn:aws:iam::aws:policy/AmazonEKSVPCResourceController
 
   EKSClusterCapstone:
     Type: AWS::EKS::Cluster
@@ -67,6 +68,23 @@ Resources:
         SubnetIds:
           - Fn::ImportValue: !Sub "${EnvironmentName}-PUB1-SN"
           - Fn::ImportValue: !Sub "${EnvironmentName}-PUB2-SN"
+
+  EKSNodegroup:
+    Type: AWS::EKS::Nodegroup
+    DependsOn: EKSClusterCapstone
+    Properties:
+      ClusterName: !Ref EKSClusterCapstone
+      NodeRole: !GetAtt EKSClusterFullAccessRole.Arn
+      ScalingConfig:
+        MinSize: 1
+        DesiredSize: 2
+        MaxSize: 3
+      Labels:
+        Key1: Value1
+        Key2: Value2
+      Subnets:
+        - Fn::ImportValue: !Sub "${EnvironmentName}-PUB1-SN"
+        - Fn::ImportValue: !Sub "${EnvironmentName}-PUB2-SN"
 
 Outputs: 
 

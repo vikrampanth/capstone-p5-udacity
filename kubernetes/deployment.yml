@@ -4,12 +4,11 @@ metadata:
   name: capstone-eks
   labels:
     app: capstone-eks
-  namespace: kube-system
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: capstone-eks
+      app: capstone-container
   strategy:
     type: RollingUpdate
     rollingUpdate:
@@ -18,10 +17,10 @@ spec:
   template:
     metadata:
       labels:
-        app: capstone-eks
+        app: capstone-container
     spec:
       containers:
-      - name: capstone-eks
+      - name: capstone-container
         image: vikrampanth/capstone-image
         imagePullPolicy: Always
         ports:
