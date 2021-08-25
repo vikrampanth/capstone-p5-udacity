@@ -79,7 +79,6 @@ jobs:
             kubectl config use-context arn:aws:eks:us-west-2:877716312368:cluster/Capstone-VP
             kubectl apply -f kubernetes/deployment.yml
             kubectl apply -f kubernetes/service.yml
-            kubectl rollout status deployment capstone-eks
             kubectl get nodes
             echo "--------------------deployment---------------------------"
             kubectl get deployment
