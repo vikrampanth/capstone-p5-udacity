@@ -22,7 +22,22 @@ commands:
 
 jobs:
 
-  build:
+  lint:
+    <<: *defaultpythonimage
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: |
+            apk update
+            apk add --update make
+      - run:
+          name: "Linting"
+          command: |
+            make hadolint-install
+            make lint
+
+  build-upload-image:
     <<: *defaultpythonimage
     steps:
       - checkout
@@ -40,40 +55,6 @@ jobs:
           command: |
             chmod +x run_docker.sh
             ./run_docker.sh
-
-  lint:
-    <<: *defaultpythonimage
-    steps:
-      - checkout
-      - run:
-          name: Install dependencies
-          command: |
-            apk update
-            apk add --update make
-      - run:
-          name: "Linting"
-          command: |
-            make hadolint-install
-            make lint
-
-  upload-image:
-    <<: *defaultpythonimage
-    steps:
-      - checkout
-      - run:
-          name: Install dependencies
-          command: |
-            apk update && apk add bash
-      - setup_remote_docker:
-          version: 19.03.13      
-      - run:
-          name: Install Docker client
-          command: apk add docker-cli
-      - run:
-          name: Build Docker Image
-          command: |
-            chmod +x build_docker.sh
-            ./build_docker.sh
       - run:
           name: Upload to docker Hub
           command: |
@@ -171,10 +152,8 @@ jobs:
 workflows:
   default:
     jobs:
-      - build
-      - lint:
-          requires: [build]
-      - upload-image:
+      - lint
+      - build-upload-image:
           requires: [lint]
       - deploy:
           requires: [upload-image]

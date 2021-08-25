@@ -1,4 +1,4 @@
-FROM nginx:lastest
+FROM nginx:latest
 
 ## Step 1:
 # Create a working directory
