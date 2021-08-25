@@ -42,6 +42,7 @@ Resources:
     Properties:
       Description: User Role for EKS Capstone
       AssumeRolePolicyDocument:
+        Version: '2012-10-17'
         Statement:
         - Effect: Allow
           Principal:
@@ -51,6 +52,7 @@ Resources:
           - 'sts:AssumeRole'
       ManagedPolicyArns: 
       - arn:aws:iam::aws:policy/AmazonEKSClusterPolicy
+      - arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy
 
   EKSClusterCapstone:
     Type: AWS::EKS::Cluster

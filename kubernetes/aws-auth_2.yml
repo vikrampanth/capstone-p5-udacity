@@ -4,8 +4,8 @@ metadata:
   name: aws-auth
   namespace: kube-system
 data:
-  mapRoles: |
-    - rolearn: arn:aws:iam::877716312368:role/Capstone-EKS-Server-EKSClusterFullAccessRole-RX47RKMRVFJO
-      username: eksAccessrole
+  mapUsers: |
+    - rolearn: arn:aws:iam::877716312368:user/udacity1
+      username: udacity1
       groups:
         - system:masters        
