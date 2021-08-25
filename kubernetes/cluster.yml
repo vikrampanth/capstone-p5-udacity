@@ -1,0 +1,12 @@
+---
+apiVersion: eksctl.io/v1
+kind: ClusterConfig
+metadata:
+  name: capstone-vp
+  region: us-west-2
+nodeGroups:
+  - name: capstone-workers
+    instanceType: t3.medium
+    desiredCapacity: 2
+    minSize: 1
+    maxSize: 3
