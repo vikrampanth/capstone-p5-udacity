@@ -57,7 +57,7 @@ jobs:
             ./run_docker.sh
       - run:
           name: Upload to docker Hub
-            command: |
+          command: |
             chmod +x upload_docker.sh
             ./upload_docker.sh
 
