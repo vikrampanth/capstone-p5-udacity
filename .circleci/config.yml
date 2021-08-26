@@ -86,7 +86,7 @@ jobs:
           name: create kubernetes cluster
           command: |
             eksctl create cluster --name="Capstone-${CIRCLE_WORKFLOW_ID:0:7}" \
-            --nodes-min=4 --nodes-max=6 \
+            --version 1.21 --nodes-min=6 --nodes-max=7 \
             --node-type=t3.medium
       - persist_to_workspace:
           root: /tmp/workspace

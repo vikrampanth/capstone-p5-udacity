@@ -1,11 +1,11 @@
 # EKS cluster creation & deletion using eksctl command
-eksctl create cluster --name="Capstone-VP" --nodes-min=3 --nodes-max=5 --node-type=t3.medium
-eksctl delete cluster --name="Capstone-6ab9871"
+eksctl create cluster --name="Capstone-VP" --version 1.21 --nodes-min=3 --nodes-max=5 --node-type=t3.medium
+eksctl delete cluster --name="Capstone-115ea9e"
 
 # Kube Detail
-aws eks update-kubeconfig --region us-west-2 --name Capstone-c5f0a6b
+aws eks update-kubeconfig --region us-west-2 --name Capstone-VP
 kubectl config view --minify
-kubectl config use-context arn:aws:eks:us-west-2:877716312368:cluster/Capstone-c5f0a6b
+kubectl config use-context arn:aws:eks:us-west-2:877716312368:cluster/Capstone-VP
 
 kubectl get svc
 kubectl get event 
