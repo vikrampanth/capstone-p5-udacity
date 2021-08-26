@@ -1,5 +1,5 @@
 # EKS cluster creation & deletion using eksctl command
-eksctl create cluster --name="Capstone-VP" --version 1.21 --nodes-min=3 --nodes-max=5 --node-type=t3.medium
+eksctl create cluster --name="Capstone-VP" --version 1.20 --nodes-min=3 --nodes-max=5 --node-type=t3.medium
 eksctl delete cluster --name="Capstone-115ea9e"
 
 # Kube Detail
