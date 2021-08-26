@@ -135,7 +135,7 @@ jobs:
             apk update && apk add bash
             apk add --update curl
             apk add --update make
-     - aws-cli-setup-python
+      - aws-cli-setup-python
       - kubernetes/install
       - run:
           name: Smoke test
