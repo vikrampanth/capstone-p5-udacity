@@ -27,6 +27,7 @@ commands:
           name: Destroy ESK Cluster
           when: on_fail
           command: |
+            make ekstl-install
             eksctl delete cluster --name="Capstone-${CIRCLE_WORKFLOW_ID:0:7}"
 
 jobs:
@@ -85,7 +86,7 @@ jobs:
           name: create kubernetes cluster
           command: |
             eksctl create cluster --name="Capstone-${CIRCLE_WORKFLOW_ID:0:7}" \
-            --nodes-min=1 --nodes-max=2 \
+            --nodes-min=3 --nodes-max=5 \
             --node-type=t2.micro
       - persist_to_workspace:
           root: /tmp/workspace
@@ -152,17 +153,30 @@ jobs:
       - destroy-environment
 
   cleanup:
-    docker:
-      - image: alpine/k8s:1.15.12
+    <<: *defaultpythonimage
     steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: |
+            apk update && apk add bash
+            apk add --update curl
+      - aws-cli-setup-python
+      - kubernetes/install
       - attach_workspace:
           at: /tmp/workspace
       - run:
           name: delete old clusters
           command: |
-            aws eks update-kubeconfig --name "capstone-${CIRCLE_WORKFLOW_ID:0:7}"
+            make ekstl-install
+            aws eks update-kubeconfig --name "Capstone-${CIRCLE_WORKFLOW_ID:0:7}"
             cluster_name=$(tr -d '\n' < cluster.txt)
-            eksctl delete cluster --name=$cluster_name
+            if [ "$cluster_name" = "null" ]
+            then
+              echo $cluster_name 
+            else
+              eksctl delete cluster --name=$cluster_name
+            fi
 
 workflows:
   default:
