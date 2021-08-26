@@ -1,31 +1,45 @@
 # EKS cluster creation & deletion using eksctl command
-eksctl create cluster --name="Capstone-VP" --version 1.20 --nodes-min=6 --nodes-max=8 --node-type=t3.medium
+eksctl create cluster --name="Capstone-VP" --nodes-min=6 --nodes-max=8 --node-type=t3.medium
+
 eksctl delete cluster --name="Capstone-5d30967"
 
 # Kube Detail
-aws eks update-kubeconfig --region us-west-2 --name Capstone-VP
+aws eks update-kubeconfig --region us-west-2 --name Capstone-eefd667
+
 kubectl config view --minify
-kubectl config use-context arn:aws:eks:us-west-2:877716312368:cluster/Capstone-VP
+
+kubectl config use-context arn:aws:eks:us-west-2:877716312368:cluster/Capstone-eefd667
 
 kubectl get svc
+
 kubectl get event 
 
 kubectl apply -f kubernetes/aws-auth-cm.yaml
+
 kubectl get cm aws-auth -o yaml
 
 kubectl get nodes
+
 kubectl apply -f kubernetes/deployment.yml
+
 kubectl apply -f kubernetes/service.yml
+
 kubectl get deployment
+
 kubectl get pods -o wide
+
 kubectl get services
+
 kubectl describe deployment
+
 kubectl describe pods
+
 kubectl describe service
 
 kubectl rollout status deployment udacitycapstone
 
 kubectl delete -f kubernetes/service.yml
+
 kubectl delete -f kubernetes/deployment.yml
 
 kubectl annotate serviceaccount --overwrite -n kube-system aws-node eks.amazonaws.com/role-arn=arn:aws:iam::877716312368:role/EKS-Capstone-project

@@ -173,7 +173,6 @@ jobs:
           name: delete old clusters
           command: |
             make ekstl-install
-            aws eks update-kubeconfig --name "Capstone-${CIRCLE_WORKFLOW_ID:0:7}"
             cluster_name=$(tr -d '\n' < /tmp/workspace/cluster.txt)
             echo $cluster_name
             if [ "$cluster_name" = "null" ]
