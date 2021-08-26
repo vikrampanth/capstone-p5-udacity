@@ -82,14 +82,12 @@ jobs:
           command: |
             echo $(aws eks list-clusters --query 'clusters[0]' --output text) > cluster.txt
             cat cluster.txt
-            cluster_name=$(tr -d '\n' < cluster.txt)
-            echo $cluster_name
       - run:
           name: create kubernetes cluster
           command: |
             eksctl create cluster --name="Capstone-${CIRCLE_WORKFLOW_ID:0:7}" \
-            --nodes-min=3 --nodes-max=5 \
-            --node-type=t2.micro
+            --nodes-min=4 --nodes-max=6 \
+            --node-type=t3.medium
       - persist_to_workspace:
           root: /tmp/workspace
           paths:
@@ -104,6 +102,7 @@ jobs:
           command: |
             apk update && apk add bash
             apk add --update curl
+            apk add --update make
       - aws-cli-setup-python
       - kubernetes/install
       - run:
@@ -135,7 +134,8 @@ jobs:
           command: |
             apk update && apk add bash
             apk add --update curl
-      - aws-cli-setup-python
+             apk add --update make
+     - aws-cli-setup-python
       - kubernetes/install
       - run:
           name: Smoke test
@@ -164,6 +164,7 @@ jobs:
           command: |
             apk update && apk add bash
             apk add --update curl
+            apk add --update make
       - aws-cli-setup-python
       - kubernetes/install
       - attach_workspace:
@@ -174,6 +175,7 @@ jobs:
             make ekstl-install
             aws eks update-kubeconfig --name "Capstone-${CIRCLE_WORKFLOW_ID:0:7}"
             cluster_name=$(tr -d '\n' < cluster.txt)
+            echo $cluster_name
             if [ "$cluster_name" = "null" ]
             then
               echo $cluster_name 
