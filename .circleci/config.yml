@@ -134,7 +134,7 @@ jobs:
           command: |
             apk update && apk add bash
             apk add --update curl
-             apk add --update make
+            apk add --update make
      - aws-cli-setup-python
       - kubernetes/install
       - run:
