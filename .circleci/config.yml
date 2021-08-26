@@ -86,7 +86,7 @@ jobs:
           name: create kubernetes cluster
           command: |
             eksctl create cluster --name="Capstone-${CIRCLE_WORKFLOW_ID:0:7}" \
-            --version 1.20 --nodes-min=6 --nodes-max=7 \
+            --version 1.20 --nodes-min=6 --nodes-max=8 \
             --node-type=t3.medium
       - persist_to_workspace:
           root: /tmp/workspace
@@ -110,13 +110,13 @@ jobs:
           command: |
             aws eks --region us-west-2 update-kubeconfig --name "Capstone-${CIRCLE_WORKFLOW_ID:0:7}"
             kubectl config use-context arn:aws:eks:us-west-2:877716312368:cluster/Capstone-${CIRCLE_WORKFLOW_ID:0:7}
+            echo "--------------------Node Detail---------------------------"
+            kubectl get nodes
             kubectl apply -f kubernetes/aws-auth-cm.yaml
             kubectl apply -f kubernetes/deployment.yml
             kubectl apply -f kubernetes/service.yml
-            kubectl get nodes
             echo "--------------------deployment---------------------------"
             kubectl get deployment
-            kubectl describe deployment
             echo "---------------------------pods---------------------------"
             kubectl get pod -o wide
             kubectl describe pods
@@ -174,7 +174,7 @@ jobs:
           command: |
             make ekstl-install
             aws eks update-kubeconfig --name "Capstone-${CIRCLE_WORKFLOW_ID:0:7}"
-            cluster_name=$(tr -d '\n' < cluster.txt)
+            cluster_name=$(tr -d '\n' < /tmp/workspace/cluster.txt)
             echo $cluster_name
             if [ "$cluster_name" = "null" ]
             then
