@@ -19,6 +19,15 @@ commands:
             apk add --no-cache python3 py3-pip \
             && pip3 install --upgrade pip \
             && pip3 install awscli
+  
+  destroy-environment:
+    description: Destroy EKS Cluster
+    steps:
+      - run:
+          name: Destroy ESK Cluster
+          when: on_fail
+          command: |
+            eksctl delete cluster --name="Capstone-${CIRCLE_WORKFLOW_ID:0:7}"
 
 jobs:
 
@@ -75,7 +84,7 @@ jobs:
       - run:
           name: create kubernetes cluster
           command: |
-            eksctl create cluster --name="capstone-${CIRCLE_WORKFLOW_ID:0:7}" \
+            eksctl create cluster --name="Capstone-${CIRCLE_WORKFLOW_ID:0:7}" \
             --nodes-min=1 --nodes-max=2 \
             --node-type=t2.micro
       - persist_to_workspace:
@@ -97,8 +106,8 @@ jobs:
       - run:
           name: Deploy Container to EKS
           command: |
-            aws eks --region us-west-2 update-kubeconfig --name "capstone-${CIRCLE_WORKFLOW_ID:0:7}"
-            kubectl config use-context arn:aws:eks:us-west-2:877716312368:cluster/Capstone-VP
+            aws eks --region us-west-2 update-kubeconfig --name "Capstone-${CIRCLE_WORKFLOW_ID:0:7}"
+            kubectl config use-context arn:aws:eks:us-west-2:877716312368:cluster/Capstone-${CIRCLE_WORKFLOW_ID:0:7}
             kubectl apply -f kubernetes/aws-auth-cm.yaml
             kubectl apply -f kubernetes/deployment.yml
             kubectl apply -f kubernetes/service.yml
@@ -112,6 +121,7 @@ jobs:
             echo "---------------------------service---------------------------"
             kubectl get service
             kubectl describe service
+      - destroy-environment
 
   smoke-test:
     <<: *defaultpythonimage
@@ -125,10 +135,10 @@ jobs:
       - aws-cli-setup-python
       - kubernetes/install
       - run:
-          name: Frontend smoke test
+          name: Smoke test
           command: |
-            aws eks --region us-west-2 update-kubeconfig --name Capstone-VP
-            kubectl config use-context arn:aws:eks:us-west-2:877716312368:cluster/Capstone-VP
+            aws eks --region us-west-2 update-kubeconfig --name "Capstone-${CIRCLE_WORKFLOW_ID:0:7}"
+            kubectl config use-context arn:aws:eks:us-west-2:877716312368:cluster/Capstone-${CIRCLE_WORKFLOW_ID:0:7}
             kubectl apply -f kubernetes/aws-auth-cm.yaml
             echo "$(kubectl get services capstone-service --output jsonpath='{.status.loadBalancer.ingress[0].hostname}')" > capstone-service.txt
             FRONTEND_IP=$(tr -d '\n' < capstone-service.txt)
@@ -139,6 +149,7 @@ jobs:
             else
               echo "URL does not exist: $frontend_url"
             fi         
+      - destroy-environment
 
   cleanup:
     docker:
