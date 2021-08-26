@@ -80,8 +80,10 @@ jobs:
       - run:
           name: Store old cluster name
           command: |
-            echo $(aws eks list-clusters --query 'clusters[0]') > cluster.txt
+            echo $(aws eks list-clusters --query 'clusters[0]' --output text) > cluster.txt
             cat cluster.txt
+            cluster_name=$(tr -d '\n' < cluster.txt)
+            echo $cluster_name
       - run:
           name: create kubernetes cluster
           command: |
@@ -145,7 +147,8 @@ jobs:
             FRONTEND_IP=$(tr -d '\n' < capstone-service.txt)
             frontend_url="http://${FRONTEND_IP}:8080"
             echo $frontend_url
-            if curl --output /dev/null --silent --head --fail "$frontend_url"; then
+            if curl --silent --head $frontend_url 
+            then
               echo "URL exists: $frontend_url"
             else
               echo "URL does not exist: $frontend_url"
